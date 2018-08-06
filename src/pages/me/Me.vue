@@ -5,17 +5,20 @@
 			<p>{{userinfo.nickName}}</p>
 		</div>
 		<YearProgress></YearProgress>
-
-		<button v-if='userinfo.openId' @click='scanBook' class="btn">添加图书</button>
+		<!-- <button v-if='userinfo.openId' @click='scanBook' class="btn">添加图书</button> -->
+		<button @click='scanBook' class="btn">添加图书</button>
 	</div>
 </template>
 
 <script>
 	import YearProgress from '@/components/YearProgress'
-	import {get, showSuccess} from '@/unit'
+	import {showSuccess, showModal, post} from '@/util'
 	import qcloud from 'wafer2-client-sdk'
 	import config from '@/config'
 	export default {
+	  components: {
+	    YearProgress
+	  },
 	  data () {
 	    return {
 	      userinfo: {
@@ -24,18 +27,21 @@
 	      }
 	    }
 	  },
-	  components: {
-	    YearProgress
-	  },
 	  methods: {
+	  	async addBook(isbn){
+	      const res = await post('/weapp/addbook',{
+	        isbn,
+	        openid:'123'
+	      })
+	      console.log(res)
+	      showModal('添加成功',`${res.title}添加成功`)
+	    },
 	    scanBook () {
 	      	wx.scanCode({
 				success: (res) => {
-				  	console.log(res)
-				    wx.showToast({
-				    	title: res.result,
-				    	icon: 'success'
-				    })
+				  	if(res.result) {
+				  		this.addBook(res.result)
+				  	}
 				},
 				fail: (res) => {
 				  	console.log(res)
@@ -55,7 +61,7 @@
 				            url: config.userUrl,
 				            login: true,
 				            success: function (userRes) {
-				                console.log(userRes)
+				                // console.log(userRes)
 			                	wx.setStorageSync('userinfo', userRes.data.data)
 			                	self.userinfo = userRes.data.data
 			                }

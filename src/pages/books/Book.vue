@@ -1,22 +1,25 @@
 <template>
 	<div>
-		图书页面111
-		<button bindgetuserinfo="getUser" class="btn" open-type='getUserInfo'>添加图书</button>
+		<div v-for='book in books' :key='book.id'>{{book.title}}</div>
 	</div>
 </template>
 
 <script>
+	import { get } from '@/util'
 	export default {
 	  data () {
 	    return {
-	      userinfo: {}
+	      books: []
 	    }
 	  },
 	  methods: {
-	    getUser (e) {
-	      // wx.setStorageSync('userInfo', userInfo);
-	      console.log(e)
+	    async getList() {
+	    	const books = await get('/weapp/booklist')
+	    	this.books = books.list
 	    }
+	  },
+	  mounted() {
+	  	this.getList()
 	  }
 	}
 </script>
